@@ -7,7 +7,7 @@ from queue import PriorityQueue
 
 class Astar:
     """A* for solving """
-    def __init__(self, benchmark=False):
+    def __init__(self, benchmark=False, heuristik="manhattan"):
         
         # Pygame initialization
         pygame.init()
@@ -15,7 +15,7 @@ class Astar:
         
         # For benchmark purpose
         self.benchmark = benchmark
-        
+        self.heuristik = heuristik
         # Visualization configuration
         self.width = 600
         self.height = 600
@@ -43,6 +43,17 @@ class Astar:
         self.green = (0, 255, 0)
         self.blue = (0, 0, 255)
 
+    def euclidean_distance(self, state):
+        """Heuristik Euclidean Distance"""
+        distance = 0
+        for i in range(3):
+            for j in range(3):
+                val = state[i][j]
+                if val != 0:
+                    target = np.where(np.array(self.goal) == val)
+                    distance += ((i - target[0][0]) ** 2 + (j - target[1][0]) ** 2) ** 0.5
+        return distance
+
     def manhattan_distance(self, state):
         """Heuristik Manhattan Distance"""
         distance = 0
@@ -57,7 +68,10 @@ class Astar:
     def solve_puzzle(self):
         """Solve the 8-puzzle"""
         open_list = PriorityQueue()
-        open_list.put((self.manhattan_distance(self.start), 0, self.start, []))
+        if self.heuristik == "euclidean":
+            open_list.put((self.euclidean_distance(self.start), 0, self.start, []))
+        else:
+            open_list.put((self.manhattan_distance(self.start), 0, self.start, []))
         closed_list = set()
 
         while not open_list.empty():
@@ -146,9 +160,11 @@ class Astar:
 if __name__ == "__main__":
     process = psutil.Process(os.getpid())
     start = time.perf_counter()
-    astar = Astar(1)
+    astar = Astar(1, "euclidean")
+    # astar = Astar(1, "manhattan")
     astar.main()
     memory_usage = process.memory_info().rss / 1024 ** 2
     print(f"Steps: {astar.current_step}")
     print(f"Finish in {(time.perf_counter() - start)*1000:.2f} ms")
     print(f"Memory usage: {memory_usage:.2f} MB")
+    print(f"A Star with {astar.heuristik} heuristik")
