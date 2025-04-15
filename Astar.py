@@ -6,7 +6,7 @@ import numpy as np
 from queue import PriorityQueue
 
 class Astar:
-    """A* for solving """
+    """A* for solving 8-Puzzle"""
     def __init__(self, benchmark=False, heuristik="manhattan"):
         
         # Pygame initialization
